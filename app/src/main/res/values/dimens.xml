@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="rv_padding">8dp</dimen>
+    <dimen name="pb_padding">4dp</dimen>
+    <dimen name="detail_margin">8dp</dimen>
+    <dimen name="detail_padding">8dp</dimen>
+</resources>

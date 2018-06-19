@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/settings_title">
+
+    <!--  free text parameter -->
+    <EditTextPreference
+        android:defaultValue="@string/settings_api_key_default"
+        android:inputType="text"
+        android:key="@string/settings_api_key_key"
+        android:selectAllOnFocus="true"
+        android:title="@string/settings_api_key_label"/>
+
+    <!-- radio button parameter -->
+    <ListPreference
+        android:defaultValue="@string/settings_search_default"
+        android:entries="@array/settings_search_labels"
+        android:entryValues="@array/settings_search_values"
+        android:key="@string/settings_search_key"
+        android:title="@string/settings_search_label" />
+
+</PreferenceScreen>
