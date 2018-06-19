@@ -2,9 +2,11 @@ package com.example.android.popularmoviesstage1;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,9 +26,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements RecyclerViewAdapter.ItemClickListener {
+public class MainActivity extends AppCompatActivity implements
+        RecyclerViewAdapter.ItemClickListener,
+        LoaderManager.LoaderCallbacks<String>{
 
     private static final int W342_BITMAPWIDTH = 342;
+
+    private static final int MAIN_LOADER_ID = 1;
 
     private RecyclerView mRecyclerView;
     private RecyclerViewAdapter mAdapter;
@@ -42,16 +48,22 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
         mRecyclerView = findViewById(R.id.rv_posters);
         mErrorMessage = findViewById(R.id.tv_error_message_display);
 
-        //asynctask
-        DataFetcher dataFetcher = new DataFetcher();
-        dataFetcher.execute();
-
         // set up the RecyclerView
         DisplayMetrics metrics = getResources().getDisplayMetrics();
 
         int displayWidth = metrics.widthPixels;
         int columnCount = displayWidth / W342_BITMAPWIDTH;
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, columnCount));
+
+        Bundle bundle = new Bundle();
+        LoaderManager loaderManager = getSupportLoaderManager();
+        Loader<Object> dataLoader = loaderManager.getLoader(MAIN_LOADER_ID);
+
+        if(dataLoader == null){
+            loaderManager.initLoader(MAIN_LOADER_ID, bundle, MainActivity.this);
+        } else{
+            loaderManager.restartLoader(MAIN_LOADER_ID, bundle, MainActivity.this);
+        }
     }
 
     // item click handling, details
@@ -68,57 +80,72 @@ public class MainActivity extends AppCompatActivity implements RecyclerViewAdapt
         startActivity(intent);
     }
 
-    // data loading
-    class DataFetcher extends AsyncTask<URL, Void, String>{
+    @Override
+    public Loader<String> onCreateLoader(int id, final Bundle args) {
+        return new AsyncTaskLoader<String>(this) {
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mLoadingIndicator.setVisibility(View.VISIBLE);
-            mRecyclerView.setVisibility(View.INVISIBLE);
-        }
+            @Override
+            protected void onStartLoading() {
+                super.onStartLoading();
+                if(args == null){
+                    return;
+                }
 
-        @Override
-        protected String doInBackground(URL... urls) {
+                mLoadingIndicator.setVisibility(View.VISIBLE);
+                mRecyclerView.setVisibility(View.INVISIBLE);
 
-            //api key and sorting
-            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-
-            String api_key = sharedPrefs.getString(
-                    getString(R.string.settings_api_key_key),
-                    "");
-
-            String orderBy  = sharedPrefs.getString(
-                    getString(R.string.settings_search_key),
-                    getString(R.string.settings_search_most_popular_value)
-            );
-
-            URL url = NetworkUtils.buildUrl(api_key, orderBy);
-            String jsonString = "";
-            try {
-                jsonString = NetworkUtils.getResponseFromHttpUrl(url);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
+                forceLoad();
             }
 
-            return jsonString;
-        }
+            @Override
+            public String loadInBackground() {
 
-        @Override
-        protected void onPostExecute(String jsonString) {
-            mLoadingIndicator.setVisibility(View.INVISIBLE);
+                //api key and sorting
+                SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
 
-            if(!TextUtils.isEmpty(jsonString)){
-                mRecyclerView.setVisibility(View.VISIBLE);
-                List<MovieData> mMovieArray = JSONUtils.ParseOverview(jsonString);
-                mAdapter = new RecyclerViewAdapter(MainActivity.this, mMovieArray);
-                mAdapter.setClickListener(MainActivity.this);
-                mRecyclerView.setAdapter(mAdapter);
-            } else {
-                mErrorMessage.setVisibility(View.VISIBLE);
+                String api_key = sharedPrefs.getString(
+                        getString(R.string.settings_api_key_key),
+                        "");
+
+                String orderBy  = sharedPrefs.getString(
+                        getString(R.string.settings_search_key),
+                        getString(R.string.settings_search_most_popular_value)
+                );
+
+                URL url = NetworkUtils.buildUrl(api_key, orderBy);
+                String jsonString = "";
+                try {
+                    jsonString = NetworkUtils.getResponseFromHttpUrl(url);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+
+                return jsonString;
             }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(Loader<String> loader, String data) {
+
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+
+        if(!TextUtils.isEmpty(data)){
+            mRecyclerView.setVisibility(View.VISIBLE);
+            List<MovieData> mMovieArray = JSONUtils.ParseOverview(data);
+            mAdapter = new RecyclerViewAdapter(MainActivity.this, mMovieArray);
+            mAdapter.setClickListener(MainActivity.this);
+            mRecyclerView.setAdapter(mAdapter);
+        } else {
+            mErrorMessage.setVisibility(View.VISIBLE);
         }
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<String> loader) {
+
     }
 
     // settings menu
