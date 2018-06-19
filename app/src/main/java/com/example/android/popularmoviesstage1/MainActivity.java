@@ -33,6 +33,8 @@ public class MainActivity extends AppCompatActivity implements
     private static final int W342_BITMAPWIDTH = 342;
 
     private static final int MAIN_LOADER_ID = 1;
+    private static final String EXTRA_API_KEY = "api_key";
+    private static final String EXTRA_ORDER_BY = "order_by";
 
     private RecyclerView mRecyclerView;
     private RecyclerViewAdapter mAdapter;
@@ -55,7 +57,22 @@ public class MainActivity extends AppCompatActivity implements
         int columnCount = displayWidth / W342_BITMAPWIDTH;
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, columnCount));
 
+        // set up the loader
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+
+        String api_key = sharedPrefs.getString(
+                getString(R.string.settings_api_key_key),
+                "");
+
+        String orderBy  = sharedPrefs.getString(
+                getString(R.string.settings_search_key),
+                getString(R.string.settings_search_most_popular_value)
+        );
+
         Bundle bundle = new Bundle();
+        bundle.putString(EXTRA_API_KEY, api_key);
+        bundle.putString(EXTRA_ORDER_BY, orderBy);
+
         LoaderManager loaderManager = getSupportLoaderManager();
         Loader<Object> dataLoader = loaderManager.getLoader(MAIN_LOADER_ID);
 
@@ -100,17 +117,8 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public String loadInBackground() {
 
-                //api key and sorting
-                SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-
-                String api_key = sharedPrefs.getString(
-                        getString(R.string.settings_api_key_key),
-                        "");
-
-                String orderBy  = sharedPrefs.getString(
-                        getString(R.string.settings_search_key),
-                        getString(R.string.settings_search_most_popular_value)
-                );
+                String api_key = args.getString(EXTRA_API_KEY);
+                String orderBy  = args.getString(EXTRA_ORDER_BY);
 
                 URL url = NetworkUtils.buildUrl(api_key, orderBy);
                 String jsonString = "";
@@ -133,8 +141,8 @@ public class MainActivity extends AppCompatActivity implements
 
         if(!TextUtils.isEmpty(data)){
             mRecyclerView.setVisibility(View.VISIBLE);
-            List<MovieData> mMovieArray = JSONUtils.ParseOverview(data);
-            mAdapter = new RecyclerViewAdapter(MainActivity.this, mMovieArray);
+            List<MovieData> movieArray = JSONUtils.ParseOverview(data);
+            mAdapter = new RecyclerViewAdapter(MainActivity.this, movieArray);
             mAdapter.setClickListener(MainActivity.this);
             mRecyclerView.setAdapter(mAdapter);
         } else {
