@@ -5,7 +5,7 @@ android {
     buildToolsVersion '27.0.3'
 
     defaultConfig {
-        applicationId "com.example.android.popularmoviesstage1"
+        applicationId "com.example.android.popularmoviesstage2"
         minSdkVersion 15
         targetSdkVersion 27
         versionCode 1

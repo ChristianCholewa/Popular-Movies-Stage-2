@@ -1,4 +1,4 @@
-package com.example.android.popularmoviesstage1;
+package com.example.android.popularmoviesstage2;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,9 +18,10 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.android.popularmoviesstage1.data.MovieData;
-import com.example.android.popularmoviesstage1.utilities.JSONUtils;
-import com.example.android.popularmoviesstage1.utilities.NetworkUtils;
+import com.example.android.popularmoviesstage2.R;
+import com.example.android.popularmoviesstage2.data.MovieData;
+import com.example.android.popularmoviesstage2.utilities.JSONUtils;
+import com.example.android.popularmoviesstage2.utilities.NetworkUtils;
 
 import java.io.IOException;
 import java.net.URL;

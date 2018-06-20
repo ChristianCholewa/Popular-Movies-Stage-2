@@ -1,10 +1,10 @@
-package com.example.android.popularmoviesstage1.utilities;
+package com.example.android.popularmoviesstage2.utilities;
 
 import android.text.TextUtils;
 
-import com.example.android.popularmoviesstage1.data.MovieData;
-import com.example.android.popularmoviesstage1.data.MovieReview;
-import com.example.android.popularmoviesstage1.data.MovieTrailer;
+import com.example.android.popularmoviesstage2.data.MovieData;
+import com.example.android.popularmoviesstage2.data.MovieReview;
+import com.example.android.popularmoviesstage2.data.MovieTrailer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
