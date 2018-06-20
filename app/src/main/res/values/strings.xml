@@ -31,4 +31,7 @@
     <!-- recycler view error overlay -->
     <string name="error_message">Error fetching data from server.</string>
 
+    <!-- reviews -->
+    <string name="review_label">Reviews</string>
+
 </resources>

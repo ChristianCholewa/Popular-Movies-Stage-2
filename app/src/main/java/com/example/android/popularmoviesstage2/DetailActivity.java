@@ -7,12 +7,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.popularmoviesstage2.R;
 import com.example.android.popularmoviesstage2.data.MovieData;
 import com.example.android.popularmoviesstage2.data.MovieReview;
 import com.example.android.popularmoviesstage2.data.MovieTrailer;
@@ -26,10 +28,18 @@ import java.util.List;
 
 public class DetailActivity extends AppCompatActivity {
 
+    private RecyclerView mRecyclerViewTrailers;
+
+    private RecyclerView mRecyclerViewReviews;
+    private RecyclerViewReviewAdapter mReviewAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
+        mRecyclerViewTrailers = findViewById(R.id.rv_trailer);
+        mRecyclerViewReviews = findViewById(R.id.rv_review);
 
         Intent intent = getIntent();
         if (intent == null) {
@@ -67,6 +77,8 @@ public class DetailActivity extends AppCompatActivity {
 
         ReviewDataFetcher reviewDataFetcher = new ReviewDataFetcher();
         reviewDataFetcher.execute(id);
+
+        mRecyclerViewReviews.setLayoutManager(new LinearLayoutManager(this));
     }
 
     // data loading
@@ -165,9 +177,9 @@ public class DetailActivity extends AppCompatActivity {
             if(!TextUtils.isEmpty(jsonString)){
 //                mRecyclerView.setVisibility(View.VISIBLE);
                 List<MovieReview> movieReviews = JSONUtils.ParseReviews(jsonString);
-//                mAdapter = new RecyclerViewAdapter(MainActivity.this, mMovieArray);
+                mReviewAdapter = new RecyclerViewReviewAdapter(DetailActivity.this, movieReviews);
 //                mAdapter.setClickListener(MainActivity.this);
-//                mRecyclerView.setAdapter(mAdapter);
+                mRecyclerViewReviews.setAdapter(mReviewAdapter);
                 for(int i = 0; i < movieReviews.size(); i++){
 
                 }
