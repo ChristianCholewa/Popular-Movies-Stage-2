@@ -33,5 +33,12 @@
 
     <!-- reviews -->
     <string name="review_label">Reviews</string>
+    <string name="no_reviews">No reviews available</string>
+    <string name="error_message_reviews">Error fetching data from server.</string>
+
+    <!-- trailers -->
+    <string name="trailer_label">Trailers</string>
+    <string name="no_trailers">No trailers available</string>
+    <string name="error_message_trailers">Error fetching data from server.</string>
 
 </resources>

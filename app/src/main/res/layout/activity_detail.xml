@@ -63,6 +63,30 @@
             tools:text="Overview" />
 
         <TextView
+            android:id="@+id/tv_trailer_label"
+            style="@style/detail_overview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="@string/trailer_label"
+            tools:text="tv_trailer_label" />
+
+        <LinearLayout
+            android:id="@+id/list_trailers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <ProgressBar
+                android:id="@+id/pb_loading_indicator_trailers"
+                android:layout_height="42dp"
+                android:layout_width="42dp"
+                android:layout_gravity="center"
+                android:visibility="invisible" />
+
+        </LinearLayout>
+
+        <TextView
             android:id="@+id/tv_review_label"
             style="@style/detail_overview"
             android:layout_width="match_parent"
@@ -71,25 +95,20 @@
             android:text="@string/review_label"
             android:textSize="24sp"/>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rv_review"
+        <LinearLayout
+            android:id="@+id/list_reviews"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp" />
+            android:orientation="vertical" >
 
-        <TextView
-            android:id="@+id/tv_trailer_label"
-            style="@style/detail_overview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            tools:text="tv_trailer_label" />
+            <ProgressBar
+                android:id="@+id/pb_loading_indicator_reviews"
+                android:layout_height="42dp"
+                android:layout_width="42dp"
+                android:layout_gravity="center"
+                android:visibility="invisible" />
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rv_trailer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp" />
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

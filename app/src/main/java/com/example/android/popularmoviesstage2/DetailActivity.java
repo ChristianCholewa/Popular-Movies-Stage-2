@@ -7,11 +7,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,18 +29,22 @@ import java.util.List;
 
 public class DetailActivity extends AppCompatActivity {
 
-    private RecyclerView mRecyclerViewTrailers;
-
-    private RecyclerView mRecyclerViewReviews;
-    private RecyclerViewReviewAdapter mReviewAdapter;
+    LinearLayout linearLayoutTrailers;
+    LinearLayout linearLayoutReviews;
+    ProgressBar loadingIndicatorTrailers;
+    ProgressBar loadingIndicatorReviews;
+    LayoutInflater layoutInflater;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        mRecyclerViewTrailers = findViewById(R.id.rv_trailer);
-        mRecyclerViewReviews = findViewById(R.id.rv_review);
+        linearLayoutTrailers = findViewById(R.id.list_trailers);
+        linearLayoutReviews = findViewById(R.id.list_reviews);
+        loadingIndicatorTrailers = findViewById(R.id.pb_loading_indicator_trailers);
+        loadingIndicatorReviews = findViewById(R.id.pb_loading_indicator_reviews);
+        layoutInflater = LayoutInflater.from(DetailActivity.this);
 
         Intent intent = getIntent();
         if (intent == null) {
@@ -77,8 +82,6 @@ public class DetailActivity extends AppCompatActivity {
 
         ReviewDataFetcher reviewDataFetcher = new ReviewDataFetcher();
         reviewDataFetcher.execute(id);
-
-        mRecyclerViewReviews.setLayoutManager(new LinearLayoutManager(this));
     }
 
     // data loading
@@ -87,8 +90,7 @@ public class DetailActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-//            mLoadingIndicator.setVisibility(View.VISIBLE);
-//            mRecyclerView.setVisibility(View.INVISIBLE);
+            loadingIndicatorTrailers.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -118,21 +120,34 @@ public class DetailActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String jsonString) {
-//            mLoadingIndicator.setVisibility(View.INVISIBLE);
+            loadingIndicatorTrailers.setVisibility(View.GONE);
 
             if(!TextUtils.isEmpty(jsonString)){
-//                mRecyclerView.setVisibility(View.VISIBLE);
-                List<MovieTrailer> movieTrailers = JSONUtils.ParseTrailers(jsonString);
-//                mAdapter = new RecyclerViewAdapter(MainActivity.this, mMovieArray);
-//                mAdapter.setClickListener(MainActivity.this);
-//                mRecyclerView.setAdapter(mAdapter);
-                for(int i = 0; i < movieTrailers.size(); i++){
 
+                List<MovieTrailer> movieTrailers = JSONUtils.ParseTrailers(jsonString);
+
+                if(movieTrailers.size() > 0) {
+                    for (int i = 0; i < movieTrailers.size(); i++) {
+                        View view = layoutInflater.inflate(R.layout.trailer_item, linearLayoutTrailers, false);
+
+                        TextView textViewName = view.findViewById(R.id.tv_trailer_name);
+                        textViewName.setText(movieTrailers.get(i).getName());
+                        TextView textViewType = view.findViewById(R.id.tv_trailer_type);
+                        textViewType.setText(movieTrailers.get(i).getType());
+                        TextView textViewSite = view.findViewById(R.id.tv_trailer_site);
+                        textViewSite.setText(movieTrailers.get(i).getSite());
+
+                        linearLayoutTrailers.addView(view);
+                    }
+                } else {
+                    View view = layoutInflater.inflate(R.layout.trailer_no_data, linearLayoutReviews, false);
+                    linearLayoutReviews.addView(view);
                 }
             }
-//            else {
-//                mErrorMessage.setVisibility(View.VISIBLE);
-//            }
+            else {
+                View view = layoutInflater.inflate(R.layout.trailer_load_error, linearLayoutReviews, false);
+                linearLayoutReviews.addView(view);
+            }
         }
     }
 
@@ -141,8 +156,7 @@ public class DetailActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-//            mLoadingIndicator.setVisibility(View.VISIBLE);
-//            mRecyclerView.setVisibility(View.INVISIBLE);
+            loadingIndicatorReviews.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -172,21 +186,32 @@ public class DetailActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String jsonString) {
-//            mLoadingIndicator.setVisibility(View.INVISIBLE);
+            loadingIndicatorReviews.setVisibility(View.GONE);
 
             if(!TextUtils.isEmpty(jsonString)){
-//                mRecyclerView.setVisibility(View.VISIBLE);
-                List<MovieReview> movieReviews = JSONUtils.ParseReviews(jsonString);
-                mReviewAdapter = new RecyclerViewReviewAdapter(DetailActivity.this, movieReviews);
-//                mAdapter.setClickListener(MainActivity.this);
-                mRecyclerViewReviews.setAdapter(mReviewAdapter);
-                for(int i = 0; i < movieReviews.size(); i++){
 
+                List<MovieReview> movieReviews = JSONUtils.ParseReviews(jsonString);
+
+                if(movieReviews.size() > 0) {
+                    for (int i = 0; i < movieReviews.size(); i++) {
+                        View view = layoutInflater.inflate(R.layout.review_item, linearLayoutReviews, false);
+
+                        TextView textViewName = view.findViewById(R.id.tv_author);
+                        textViewName.setText(movieReviews.get(i).getAuthor());
+                        TextView textViewType = view.findViewById(R.id.tv_content);
+                        textViewType.setText(movieReviews.get(i).getContent());
+
+                        linearLayoutReviews.addView(view);
+                    }
+                } else{
+                    View view = layoutInflater.inflate(R.layout.review_no_data, linearLayoutReviews, false);
+                    linearLayoutReviews.addView(view);
                 }
             }
-//            else {
-//                mErrorMessage.setVisibility(View.VISIBLE);
-//            }
+            else {
+                View view = layoutInflater.inflate(R.layout.review_load_error, linearLayoutReviews, false);
+                linearLayoutReviews.addView(view);
+            }
         }
     }
 

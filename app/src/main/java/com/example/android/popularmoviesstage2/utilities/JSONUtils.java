@@ -30,6 +30,7 @@ public class JSONUtils {
     private static String JSON_KEY_TRAILER_KEY = "key";
     private static String JSON_KEY_TRAILER_NAME = "name";
     private static String JSON_KEY_TRAILER_SITE = "site";
+    private static String JSON_KEY_TRAILER_TYPE = "type";
 
     // review
     private static String JSON_KEY_REVIEW_AUTHOR = "author";
@@ -81,7 +82,8 @@ public class JSONUtils {
                     MovieTrailer newTrailer = new MovieTrailer(
                             trailer.getString(JSON_KEY_TRAILER_KEY),
                             trailer.getString(JSON_KEY_TRAILER_NAME),
-                            trailer.getString(JSON_KEY_TRAILER_SITE)
+                            trailer.getString(JSON_KEY_TRAILER_SITE),
+                            trailer.getString(JSON_KEY_TRAILER_TYPE)
                     );
 
                     movieTrailers.add(newTrailer);
