@@ -1,8 +1,10 @@
 package com.example.android.popularmoviesstage2;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -29,11 +31,11 @@ import java.util.List;
 
 public class DetailActivity extends AppCompatActivity {
 
-    LinearLayout linearLayoutTrailers;
-    LinearLayout linearLayoutReviews;
+    private LinearLayout linearLayoutTrailers;
+    private LinearLayout linearLayoutReviews;
     ProgressBar loadingIndicatorTrailers;
-    ProgressBar loadingIndicatorReviews;
-    LayoutInflater layoutInflater;
+    private ProgressBar loadingIndicatorReviews;
+    private LayoutInflater layoutInflater;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +54,19 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         MovieData data = intent.getParcelableExtra(MovieData.EXTRA_NAME_MOVIEDATA);
+        int movieId = data.getId();
 
-        int id = data.getId();
+        InitializeUI(data);
+
+        //async tasks
+        TrailerDataFetcher trailerDataFetcher = new TrailerDataFetcher();
+        trailerDataFetcher.execute(movieId);
+
+        ReviewDataFetcher reviewDataFetcher = new ReviewDataFetcher();
+        reviewDataFetcher.execute(movieId);
+    }
+
+    private void InitializeUI(MovieData data){
         String title = data.getTitle();
         String release_date = data.getRelease_date();
         String poster_path = data.getPoster_path();
@@ -75,13 +88,6 @@ public class DetailActivity extends AppCompatActivity {
 
         TextView tv_overview = findViewById(R.id.tv_overview);
         tv_overview.setText(overview);
-
-        //asynctask
-        TrailerDataFetcher trailerDataFetcher = new TrailerDataFetcher();
-        trailerDataFetcher.execute(id);
-
-        ReviewDataFetcher reviewDataFetcher = new ReviewDataFetcher();
-        reviewDataFetcher.execute(id);
     }
 
     // data loading
@@ -137,6 +143,15 @@ public class DetailActivity extends AppCompatActivity {
                         TextView textViewSite = view.findViewById(R.id.tv_trailer_site);
                         textViewSite.setText(movieTrailers.get(i).getSite());
 
+                        view.setTag(movieTrailers.get(i));
+                        view.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                MovieTrailer trailer = (MovieTrailer)v.getTag();
+                                PlayTrailer(trailer);
+                            }
+                        });
+
                         linearLayoutTrailers.addView(view);
                     }
                 } else {
@@ -148,6 +163,19 @@ public class DetailActivity extends AppCompatActivity {
                 View view = layoutInflater.inflate(R.layout.trailer_load_error, linearLayoutReviews, false);
                 linearLayoutReviews.addView(view);
             }
+        }
+    }
+
+    private void PlayTrailer(MovieTrailer trailer){
+        String key = trailer.getKey();
+
+        Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + key));
+        Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + key));
+
+        try {
+            startActivity(appIntent);
+        } catch (ActivityNotFoundException ex) {
+            startActivity(webIntent);
         }
     }
 
@@ -201,6 +229,15 @@ public class DetailActivity extends AppCompatActivity {
                         TextView textViewType = view.findViewById(R.id.tv_content);
                         textViewType.setText(movieReviews.get(i).getContent());
 
+                        view.setTag(movieReviews.get(i));
+                        view.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                MovieReview review = (MovieReview)v.getTag();
+                                ShowReview(review);
+                            }
+                        });
+
                         linearLayoutReviews.addView(view);
                     }
                 } else{
@@ -213,6 +250,13 @@ public class DetailActivity extends AppCompatActivity {
                 linearLayoutReviews.addView(view);
             }
         }
+    }
+
+    private void ShowReview(MovieReview review){
+        String url = review.getUrl();
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(url));
+        startActivity(i);
     }
 
     private void closeOnError() {
