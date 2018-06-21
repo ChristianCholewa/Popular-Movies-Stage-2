@@ -5,9 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -29,13 +32,20 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends AppCompatActivity
+        implements LoaderManager.LoaderCallbacks<String> {
 
     private LinearLayout linearLayoutTrailers;
     private LinearLayout linearLayoutReviews;
     ProgressBar loadingIndicatorTrailers;
     private ProgressBar loadingIndicatorReviews;
     private LayoutInflater layoutInflater;
+
+    private static final int TRAILER_LOADER_ID = 2;
+    private static final int REVIEW_LOADER_ID = 3;
+
+    private static final String EXTRA_MOVIE_ID = "extra_movie_id";
+    private static final String EXTRA_API_KEY = "api_key";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,17 +66,101 @@ public class DetailActivity extends AppCompatActivity {
         MovieData data = intent.getParcelableExtra(MovieData.EXTRA_NAME_MOVIEDATA);
         int movieId = data.getId();
 
-        InitializeUI(data);
+        InitializeDetailsSection(data);
 
-        //async tasks
-        TrailerDataFetcher trailerDataFetcher = new TrailerDataFetcher();
-        trailerDataFetcher.execute(movieId);
+        Context context = getApplicationContext();
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 
-        ReviewDataFetcher reviewDataFetcher = new ReviewDataFetcher();
-        reviewDataFetcher.execute(movieId);
+        String api_key = sharedPrefs.getString(
+                getString(R.string.settings_api_key_key),
+                "");
+
+        Bundle bundle = new Bundle();
+        bundle.putString(EXTRA_API_KEY, api_key);
+        bundle.putInt(EXTRA_MOVIE_ID, movieId);
+
+        LoaderManager loaderManager = getSupportLoaderManager();
+
+        Loader<Object> trailerLoader = loaderManager.getLoader(TRAILER_LOADER_ID);
+        if(trailerLoader == null){
+            loaderManager.initLoader(TRAILER_LOADER_ID, bundle, DetailActivity.this);
+        } else{
+            loaderManager.restartLoader(TRAILER_LOADER_ID, bundle, DetailActivity.this);
+        }
+
+        Loader<Object> reviewLoader = loaderManager.getLoader(REVIEW_LOADER_ID);
+        if(reviewLoader == null){
+            loaderManager.initLoader(REVIEW_LOADER_ID, bundle, DetailActivity.this);
+        } else{
+            loaderManager.restartLoader(REVIEW_LOADER_ID, bundle, DetailActivity.this);
+        }
     }
 
-    private void InitializeUI(MovieData data){
+    @NonNull
+    @Override
+    public Loader<String> onCreateLoader(final int id, final Bundle args) {
+
+        return new AsyncTaskLoader<String>(this) {
+
+            @Override
+            protected void onStartLoading() {
+                super.onStartLoading();
+                if(args == null){
+                    return;
+                }
+
+                if(id == TRAILER_LOADER_ID) {
+                    loadingIndicatorTrailers.setVisibility(View.VISIBLE);
+                } else {
+                    loadingIndicatorReviews.setVisibility(View.VISIBLE);
+                }
+
+                forceLoad();
+            }
+
+            @Override
+            public String loadInBackground() {
+
+                int movieId = args.getInt(EXTRA_MOVIE_ID);
+                String api_key = args.getString(EXTRA_API_KEY);
+
+                URL url;
+                if(id == TRAILER_LOADER_ID) {
+                    url = NetworkUtils.buildTrailerUrl(api_key, movieId);
+                } else {
+                    url = NetworkUtils.buildReviewUrl(api_key, movieId);
+                }
+
+                String jsonString = "";
+                try {
+                    jsonString = NetworkUtils.getResponseFromHttpUrl(url);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+
+                return jsonString;
+            }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<String> loader, String data) {
+        int loaderId = loader.getId();
+
+        if(loaderId == TRAILER_LOADER_ID) {
+            InitializeTrailerSection(data);
+        } else {
+            InitializeReviewSection(data);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<String> loader) {
+
+    }
+
+    private void InitializeDetailsSection(MovieData data){
         String title = data.getTitle();
         String release_date = data.getRelease_date();
         String poster_path = data.getPoster_path();
@@ -90,79 +184,81 @@ public class DetailActivity extends AppCompatActivity {
         tv_overview.setText(overview);
     }
 
-    // data loading
-    class TrailerDataFetcher extends AsyncTask<Integer, Void, String> {
+    private void InitializeTrailerSection(String jsonString){
+        loadingIndicatorTrailers.setVisibility(View.GONE);
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            loadingIndicatorTrailers.setVisibility(View.VISIBLE);
-        }
+        if(!TextUtils.isEmpty(jsonString)){
 
-        @Override
-        protected String doInBackground(Integer... ids) {
+            List<MovieTrailer> movieTrailers = JSONUtils.ParseTrailers(jsonString);
 
-            int movieId = ids[0];
+            if(movieTrailers.size() > 0) {
+                for (int i = 0; i < movieTrailers.size(); i++) {
+                    View view = layoutInflater.inflate(R.layout.trailer_item, linearLayoutTrailers, false);
 
-            //api key and sorting
-            Context context = getApplicationContext();
-            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+                    TextView textViewName = view.findViewById(R.id.tv_trailer_name);
+                    textViewName.setText(movieTrailers.get(i).getName());
+                    TextView textViewType = view.findViewById(R.id.tv_trailer_type);
+                    textViewType.setText(movieTrailers.get(i).getType());
+                    TextView textViewSite = view.findViewById(R.id.tv_trailer_site);
+                    textViewSite.setText(movieTrailers.get(i).getSite());
 
-            String api_key = sharedPrefs.getString(
-                    getString(R.string.settings_api_key_key),
-                    "");
+                    view.setTag(movieTrailers.get(i));
+                    view.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            MovieTrailer trailer = (MovieTrailer)v.getTag();
+                            PlayTrailer(trailer);
+                        }
+                    });
 
-            URL url = NetworkUtils.buildTrailerUrl(api_key, movieId);
-            String jsonString = "";
-            try {
-                jsonString = NetworkUtils.getResponseFromHttpUrl(url);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-
-            return jsonString;
-        }
-
-        @Override
-        protected void onPostExecute(String jsonString) {
-            loadingIndicatorTrailers.setVisibility(View.GONE);
-
-            if(!TextUtils.isEmpty(jsonString)){
-
-                List<MovieTrailer> movieTrailers = JSONUtils.ParseTrailers(jsonString);
-
-                if(movieTrailers.size() > 0) {
-                    for (int i = 0; i < movieTrailers.size(); i++) {
-                        View view = layoutInflater.inflate(R.layout.trailer_item, linearLayoutTrailers, false);
-
-                        TextView textViewName = view.findViewById(R.id.tv_trailer_name);
-                        textViewName.setText(movieTrailers.get(i).getName());
-                        TextView textViewType = view.findViewById(R.id.tv_trailer_type);
-                        textViewType.setText(movieTrailers.get(i).getType());
-                        TextView textViewSite = view.findViewById(R.id.tv_trailer_site);
-                        textViewSite.setText(movieTrailers.get(i).getSite());
-
-                        view.setTag(movieTrailers.get(i));
-                        view.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                MovieTrailer trailer = (MovieTrailer)v.getTag();
-                                PlayTrailer(trailer);
-                            }
-                        });
-
-                        linearLayoutTrailers.addView(view);
-                    }
-                } else {
-                    View view = layoutInflater.inflate(R.layout.trailer_no_data, linearLayoutReviews, false);
-                    linearLayoutReviews.addView(view);
+                    linearLayoutTrailers.addView(view);
                 }
-            }
-            else {
-                View view = layoutInflater.inflate(R.layout.trailer_load_error, linearLayoutReviews, false);
+            } else {
+                View view = layoutInflater.inflate(R.layout.trailer_no_data, linearLayoutReviews, false);
                 linearLayoutReviews.addView(view);
             }
+        }
+        else {
+            View view = layoutInflater.inflate(R.layout.trailer_load_error, linearLayoutReviews, false);
+            linearLayoutReviews.addView(view);
+        }
+    }
+
+    private void InitializeReviewSection(String jsonString){
+        loadingIndicatorReviews.setVisibility(View.GONE);
+
+        if(!TextUtils.isEmpty(jsonString)){
+
+            List<MovieReview> movieReviews = JSONUtils.ParseReviews(jsonString);
+
+            if(movieReviews.size() > 0) {
+                for (int i = 0; i < movieReviews.size(); i++) {
+                    View view = layoutInflater.inflate(R.layout.review_item, linearLayoutReviews, false);
+
+                    TextView textViewName = view.findViewById(R.id.tv_author);
+                    textViewName.setText(movieReviews.get(i).getAuthor());
+                    TextView textViewType = view.findViewById(R.id.tv_content);
+                    textViewType.setText(movieReviews.get(i).getContent());
+
+                    view.setTag(movieReviews.get(i));
+                    view.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            MovieReview review = (MovieReview)v.getTag();
+                            ShowReview(review);
+                        }
+                    });
+
+                    linearLayoutReviews.addView(view);
+                }
+            } else{
+                View view = layoutInflater.inflate(R.layout.review_no_data, linearLayoutReviews, false);
+                linearLayoutReviews.addView(view);
+            }
+        }
+        else {
+            View view = layoutInflater.inflate(R.layout.review_load_error, linearLayoutReviews, false);
+            linearLayoutReviews.addView(view);
         }
     }
 
@@ -176,79 +272,6 @@ public class DetailActivity extends AppCompatActivity {
             startActivity(appIntent);
         } catch (ActivityNotFoundException ex) {
             startActivity(webIntent);
-        }
-    }
-
-    class ReviewDataFetcher extends AsyncTask<Integer, Void, String> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            loadingIndicatorReviews.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected String doInBackground(Integer... ids) {
-
-            int movieId = ids[0];
-
-            //api key and sorting
-            Context context = getApplicationContext();
-            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-
-            String api_key = sharedPrefs.getString(
-                    getString(R.string.settings_api_key_key),
-                    "");
-
-            URL url = NetworkUtils.buildReviewUrl(api_key, movieId);
-            String jsonString = "";
-            try {
-                jsonString = NetworkUtils.getResponseFromHttpUrl(url);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-
-            return jsonString;
-        }
-
-        @Override
-        protected void onPostExecute(String jsonString) {
-            loadingIndicatorReviews.setVisibility(View.GONE);
-
-            if(!TextUtils.isEmpty(jsonString)){
-
-                List<MovieReview> movieReviews = JSONUtils.ParseReviews(jsonString);
-
-                if(movieReviews.size() > 0) {
-                    for (int i = 0; i < movieReviews.size(); i++) {
-                        View view = layoutInflater.inflate(R.layout.review_item, linearLayoutReviews, false);
-
-                        TextView textViewName = view.findViewById(R.id.tv_author);
-                        textViewName.setText(movieReviews.get(i).getAuthor());
-                        TextView textViewType = view.findViewById(R.id.tv_content);
-                        textViewType.setText(movieReviews.get(i).getContent());
-
-                        view.setTag(movieReviews.get(i));
-                        view.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                MovieReview review = (MovieReview)v.getTag();
-                                ShowReview(review);
-                            }
-                        });
-
-                        linearLayoutReviews.addView(view);
-                    }
-                } else{
-                    View view = layoutInflater.inflate(R.layout.review_no_data, linearLayoutReviews, false);
-                    linearLayoutReviews.addView(view);
-                }
-            }
-            else {
-                View view = layoutInflater.inflate(R.layout.review_load_error, linearLayoutReviews, false);
-                linearLayoutReviews.addView(view);
-            }
         }
     }
 
