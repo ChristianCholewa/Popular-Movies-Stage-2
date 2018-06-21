@@ -1,4 +1,4 @@
-package com.example.android.popularmoviesstage1.utilities;
+package com.example.android.popularmoviesstage2.utilities;
 
 import android.net.Uri;
 import android.util.Log;

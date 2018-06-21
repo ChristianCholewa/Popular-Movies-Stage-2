@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Popular Movies App, Stage 1</string>
+    <string name="app_name">Popular Movies App, Stage 2</string>
 
     <!-- details -->
     <string name="details_title">Popular Movies</string>
@@ -30,5 +30,15 @@
 
     <!-- recycler view error overlay -->
     <string name="error_message">Error fetching data from server.</string>
+
+    <!-- reviews -->
+    <string name="review_label">Reviews</string>
+    <string name="no_reviews">No reviews available</string>
+    <string name="error_message_reviews">Error fetching data from server.</string>
+
+    <!-- trailers -->
+    <string name="trailer_label">Trailers</string>
+    <string name="no_trailers">No trailers available</string>
+    <string name="error_message_trailers">Error fetching data from server.</string>
 
 </resources>

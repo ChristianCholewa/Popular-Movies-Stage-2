@@ -1,4 +1,4 @@
-package com.example.android.popularmoviesstage1;
+package com.example.android.popularmoviesstage2;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -7,8 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.example.android.popularmoviesstage1.data.MovieData;
-import com.example.android.popularmoviesstage1.utilities.NetworkUtils;
+import com.example.android.popularmoviesstage2.data.MovieData;
+import com.example.android.popularmoviesstage2.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
 import java.net.URL;

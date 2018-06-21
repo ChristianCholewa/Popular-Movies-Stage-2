@@ -1,10 +1,10 @@
-package com.example.android.popularmoviesstage1.utilities;
+package com.example.android.popularmoviesstage2.utilities;
 
 import android.text.TextUtils;
 
-import com.example.android.popularmoviesstage1.data.MovieData;
-import com.example.android.popularmoviesstage1.data.MovieReview;
-import com.example.android.popularmoviesstage1.data.MovieTrailer;
+import com.example.android.popularmoviesstage2.data.MovieData;
+import com.example.android.popularmoviesstage2.data.MovieReview;
+import com.example.android.popularmoviesstage2.data.MovieTrailer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,6 +30,7 @@ public class JSONUtils {
     private static String JSON_KEY_TRAILER_KEY = "key";
     private static String JSON_KEY_TRAILER_NAME = "name";
     private static String JSON_KEY_TRAILER_SITE = "site";
+    private static String JSON_KEY_TRAILER_TYPE = "type";
 
     // review
     private static String JSON_KEY_REVIEW_AUTHOR = "author";
@@ -81,7 +82,8 @@ public class JSONUtils {
                     MovieTrailer newTrailer = new MovieTrailer(
                             trailer.getString(JSON_KEY_TRAILER_KEY),
                             trailer.getString(JSON_KEY_TRAILER_NAME),
-                            trailer.getString(JSON_KEY_TRAILER_SITE)
+                            trailer.getString(JSON_KEY_TRAILER_SITE),
+                            trailer.getString(JSON_KEY_TRAILER_TYPE)
                     );
 
                     movieTrailers.add(newTrailer);
