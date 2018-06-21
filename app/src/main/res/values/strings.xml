@@ -31,6 +31,11 @@
     <!-- recycler view error overlay -->
     <string name="error_message">Error fetching data from server.</string>
 
+    <!-- details view -->
+    <string name="rating_of10">/10</string>
+    <string name="add_to_favorites">Movie added to favorites</string>
+    <string name="remove_from_favorites">Movie removed from favorites</string>
+
     <!-- reviews -->
     <string name="review_label">Reviews</string>
     <string name="no_reviews">No reviews available</string>

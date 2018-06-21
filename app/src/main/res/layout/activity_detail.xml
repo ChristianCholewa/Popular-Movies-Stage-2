@@ -35,20 +35,48 @@
                     android:layout_margin="8dp"
                     tools:text="Title" />
 
-                <TextView
-                    android:id="@+id/tv_average"
-                    style="@style/detail_average"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    tools:text="Average" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tv_average"
+                        style="@style/detail_average"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginBottom="8dp"
+                        tools:text="10" />
+
+                    <TextView
+                        android:id="@+id/tv_average_10"
+                        android:textSize="12sp"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/rating_of10"
+                        tools:text="/10" />
+
+                    <ImageView
+                        android:id="@+id/iv_favorite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="32dp"
+                        android:src="@drawable/baseline_favorite_border_black_48" />
+
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/tv_release"
                     style="@style/detail_release"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
+                    android:layout_marginLeft="8dp"
                     tools:text="Release date" />
 
             </LinearLayout>

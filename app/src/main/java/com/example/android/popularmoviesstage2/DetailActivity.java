@@ -35,6 +35,8 @@ import java.util.List;
 public class DetailActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<String> {
 
+    private ImageView imageViewFavorite;
+
     private LinearLayout linearLayoutTrailers;
     private LinearLayout linearLayoutReviews;
     ProgressBar loadingIndicatorTrailers;
@@ -47,6 +49,8 @@ public class DetailActivity extends AppCompatActivity
     private static final String EXTRA_MOVIE_ID = "extra_movie_id";
     private static final String EXTRA_API_KEY = "api_key";
 
+    private static boolean isFavorite;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,17 +62,20 @@ public class DetailActivity extends AppCompatActivity
         loadingIndicatorReviews = findViewById(R.id.pb_loading_indicator_reviews);
         layoutInflater = LayoutInflater.from(DetailActivity.this);
 
+        imageViewFavorite = findViewById(R.id.iv_favorite);
+
         Intent intent = getIntent();
         if (intent == null) {
             closeOnError();
         }
 
         MovieData data = intent.getParcelableExtra(MovieData.EXTRA_NAME_MOVIEDATA);
+
         int movieId = data.getId();
 
         InitializeDetailsSection(data);
 
-        Context context = getApplicationContext();
+        final Context context = getApplicationContext();
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 
         String api_key = sharedPrefs.getString(
@@ -94,6 +101,25 @@ public class DetailActivity extends AppCompatActivity
         } else{
             loaderManager.restartLoader(REVIEW_LOADER_ID, bundle, DetailActivity.this);
         }
+
+        // TODO database
+        isFavorite = false;
+
+        imageViewFavorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO database
+                isFavorite = !isFavorite;
+
+                if(isFavorite){
+                    imageViewFavorite.setImageDrawable(getDrawable(R.drawable.baseline_favorite_black_48));
+                    Toast.makeText(DetailActivity.this, context.getString(R.string.add_to_favorites), Toast.LENGTH_SHORT).show();
+                } else {
+                    imageViewFavorite.setImageDrawable(getDrawable(R.drawable.baseline_favorite_border_black_48));
+                    Toast.makeText(DetailActivity.this, context.getString(R.string.remove_from_favorites), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     @NonNull
@@ -195,6 +221,7 @@ public class DetailActivity extends AppCompatActivity
                 for (int i = 0; i < movieTrailers.size(); i++) {
                     View view = layoutInflater.inflate(R.layout.trailer_item, linearLayoutTrailers, false);
 
+                    //TODO site
                     TextView textViewName = view.findViewById(R.id.tv_trailer_name);
                     textViewName.setText(movieTrailers.get(i).getName());
                     TextView textViewType = view.findViewById(R.id.tv_trailer_type);
@@ -264,7 +291,7 @@ public class DetailActivity extends AppCompatActivity
 
     private void PlayTrailer(MovieTrailer trailer){
         String key = trailer.getKey();
-
+//TODO site
         Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + key));
         Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + key));
 
