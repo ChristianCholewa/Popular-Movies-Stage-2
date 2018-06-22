@@ -31,7 +31,7 @@
     <string name="settings_search_favorites_value" translatable="false">favorites</string>
 
     <!-- recycler view error overlay -->
-    <string name="error_message">Error fetching data from server.</string>
+    <string name="error_message">Error fetching data from server.\nHave you entered your api key in the settings?</string>
 
     <!-- details view -->
     <string name="detail_error_message">Movie details not available</string>
