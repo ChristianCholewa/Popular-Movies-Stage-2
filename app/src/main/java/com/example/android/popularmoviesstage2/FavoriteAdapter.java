@@ -80,6 +80,10 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.Favori
         notifyDataSetChanged();
     }
 
+    public List<FavoriteEntry> getFavorites() {
+        return this.favoriteEntries;
+    }
+
     public interface ItemClickListener {
         void onItemClickListener(int itemId);
     }

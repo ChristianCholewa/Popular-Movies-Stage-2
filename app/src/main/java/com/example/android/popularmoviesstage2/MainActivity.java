@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Menu;
@@ -96,6 +97,38 @@ public class MainActivity extends AppCompatActivity implements
             // Initialize the adapter and attach it to the RecyclerView
             mDatabaseAdapter = new FavoriteAdapter(this, this);
             mRecyclerView.setAdapter(mDatabaseAdapter);
+
+            new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+                @Override
+                public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                    return false;
+                }
+
+                // Called when a user swipes left or right on a ViewHolder
+                @Override
+                public void onSwiped(final RecyclerView.ViewHolder viewHolder, int swipeDir) {
+
+                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mLoadingIndicator.setVisibility(View.VISIBLE);
+                                    mRecyclerView.setVisibility(View.INVISIBLE);
+                                }
+                            });
+
+                            int pos = viewHolder.getAdapterPosition();
+                            FavoriteEntry favoriteEntry = mDatabaseAdapter.getFavorites().get(pos);
+
+                            mDatabase.favoriteDao().deleteFavorite(favoriteEntry);
+
+                            readFavoritesFromDatabase();
+                        }
+                    });
+                }
+            }).attachToRecyclerView(mRecyclerView);
             
         } else {
             
@@ -125,26 +158,29 @@ public class MainActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
         if(selectedMode.equals(getString(R.string.settings_search_favorites_value))) {
-
             mLoadingIndicator.setVisibility(View.VISIBLE);
             mRecyclerView.setVisibility(View.INVISIBLE);
 
-            AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                @Override
-                public void run() {
-                    final List<FavoriteEntry> listFavoriteEntry = mDatabase.favoriteDao().loadAllFavorites();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mDatabaseAdapter.setFavorites(listFavoriteEntry);
-
-                            mLoadingIndicator.setVisibility(View.INVISIBLE);
-                            mRecyclerView.setVisibility(View.VISIBLE);
-                        }
-                    });
-                }
-            });
+            readFavoritesFromDatabase();
         }
+    }
+
+    private void readFavoritesFromDatabase(){
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                final List<FavoriteEntry> listFavoriteEntry = mDatabase.favoriteDao().loadAllFavorites();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mDatabaseAdapter.setFavorites(listFavoriteEntry);
+
+                        mLoadingIndicator.setVisibility(View.INVISIBLE);
+                        mRecyclerView.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+        });
     }
 
     //TODO remove?
