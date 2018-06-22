@@ -39,7 +39,7 @@ public class DetailActivity extends AppCompatActivity
 
     private LinearLayout linearLayoutTrailers;
     private LinearLayout linearLayoutReviews;
-    ProgressBar loadingIndicatorTrailers;
+    private ProgressBar loadingIndicatorTrailers;
     private ProgressBar loadingIndicatorReviews;
     private LayoutInflater layoutInflater;
 

@@ -46,18 +46,12 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // get views
         mLoadingIndicator = findViewById(R.id.pb_loading_indicator);
         mRecyclerView = findViewById(R.id.rv_posters);
         mErrorMessage = findViewById(R.id.tv_error_message_display);
 
-        // set up the RecyclerView
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-
-        int displayWidth = metrics.widthPixels;
-        int columnCount = displayWidth / W342_BITMAPWIDTH;
-        mRecyclerView.setLayoutManager(new GridLayoutManager(this, columnCount));
-
-        // set up the loader
+        // get preferences
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
 
         String api_key = sharedPrefs.getString(
@@ -69,6 +63,26 @@ public class MainActivity extends AppCompatActivity implements
                 getString(R.string.settings_search_most_popular_value)
         );
 
+        // set the app title
+        String title;
+        if(orderBy.equals(getString(R.string.settings_search_most_popular_value))){
+            title = getString(R.string.app_title_popular);
+        } else if (orderBy.equals(getString(R.string.settings_search_highest_rated_value))){
+            title = getString(R.string.app_title_highest);
+        } else {
+            title = getString(R.string.app_title_favorites);
+        }
+
+        setTitle(title);
+
+        // set up the RecyclerView layout
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+
+        int displayWidth = metrics.widthPixels;
+        int columnCount = displayWidth / W342_BITMAPWIDTH;
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this, columnCount));
+
+        // initialize the loader
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_API_KEY, api_key);
         bundle.putString(EXTRA_ORDER_BY, orderBy);
