@@ -17,14 +17,11 @@ import java.util.List;
 
 public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.FavoriteViewHolder> {
 
-    final private ItemClickListener itemClickListener;
-
     private List<FavoriteEntry> favoriteEntries;
     private Context context;
 
-    public FavoriteAdapter(Context context, ItemClickListener itemClickListener) {
+    public FavoriteAdapter(Context context) {
         this.context = context;
-        this.itemClickListener = itemClickListener;
     }
 
     /**
@@ -89,7 +86,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.Favori
     }
 
     // Inner class for creating ViewHolders
-    class FavoriteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class FavoriteViewHolder extends RecyclerView.ViewHolder {
 
         // Class variables for the picture and the titel
         TextView tvTitel;
@@ -105,13 +102,6 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.Favori
 
             tvTitel = itemView.findViewById(R.id.tv_favorite_title);
             ivImage = itemView.findViewById(R.id.iv_favorite_poster);
-            itemView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View view) {
-            int elementId = favoriteEntries.get(getAdapterPosition()).getEntryId();
-            itemClickListener.onItemClickListener(elementId);
         }
     }
 }

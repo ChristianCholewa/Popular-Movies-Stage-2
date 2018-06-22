@@ -1,9 +1,12 @@
 package com.example.android.popularmoviesstage2;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -32,8 +35,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements
         RecyclerViewAdapter.ItemClickListener,
-        LoaderManager.LoaderCallbacks<String>,
-        FavoriteAdapter.ItemClickListener{
+        LoaderManager.LoaderCallbacks<String>{
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
@@ -95,8 +97,13 @@ public class MainActivity extends AppCompatActivity implements
             mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
             // Initialize the adapter and attach it to the RecyclerView
-            mDatabaseAdapter = new FavoriteAdapter(this, this);
+            mDatabaseAdapter = new FavoriteAdapter(this);
             mRecyclerView.setAdapter(mDatabaseAdapter);
+
+            mLoadingIndicator.setVisibility(View.VISIBLE);
+            mRecyclerView.setVisibility(View.INVISIBLE);
+
+            readFavoritesFromDatabase();
 
             new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
                 @Override
@@ -154,41 +161,22 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if(selectedMode.equals(getString(R.string.settings_search_favorites_value))) {
-            mLoadingIndicator.setVisibility(View.VISIBLE);
-            mRecyclerView.setVisibility(View.INVISIBLE);
-
-            readFavoritesFromDatabase();
-        }
-    }
-
     private void readFavoritesFromDatabase(){
-        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                final List<FavoriteEntry> listFavoriteEntry = mDatabase.favoriteDao().loadAllFavorites();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mDatabaseAdapter.setFavorites(listFavoriteEntry);
 
-                        mLoadingIndicator.setVisibility(View.INVISIBLE);
-                        mRecyclerView.setVisibility(View.VISIBLE);
-                    }
-                });
+        final LiveData<List<FavoriteEntry>> listFavoriteEntry = mDatabase.favoriteDao().loadAllFavorites();
+
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        mRecyclerView.setVisibility(View.VISIBLE);
+
+        listFavoriteEntry.observe(this, new Observer<List<FavoriteEntry>>() {
+            @Override
+            public void onChanged(@Nullable List<FavoriteEntry> favoriteEntries) {
+                mDatabaseAdapter.setFavorites(favoriteEntries);
+
+                mLoadingIndicator.setVisibility(View.INVISIBLE);
+                mRecyclerView.setVisibility(View.VISIBLE);
             }
         });
-    }
-
-    //TODO remove?
-    @Override
-    public void onItemClickListener(int itemId) {
-//        long dbID = mDatabaseAdapter.getItemId(itemId);
-//        FavoriteEntry entry = mDatabase.favoriteDao().getFavoriteByEntryId(dbID);
-//        Log.d(LOG_TAG, "onItemClickListener: " + entry.getTitle());
     }
 
     // item click handling, details
