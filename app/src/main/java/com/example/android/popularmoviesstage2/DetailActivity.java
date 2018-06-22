@@ -134,8 +134,8 @@ public class DetailActivity extends AppCompatActivity
                     public void run() {
 
                         if(isFavorite){
-                            FavoriteEntry newEntry = new FavoriteEntry(movieData.getId(), movieData.getTitle(), movieData.getPoster_path());
-                            mDatabase.favoriteDao().insertFavorite(newEntry);
+                            entry = new FavoriteEntry(movieData.getId(), movieData.getTitle(), movieData.getPoster_path());
+                            mDatabase.favoriteDao().insertFavorite(entry);
                         } else {
                             mDatabase.favoriteDao().deleteFavorite(entry);
                         }
@@ -143,6 +143,12 @@ public class DetailActivity extends AppCompatActivity
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                if(isFavorite){
+                                    Toast.makeText(DetailActivity.this, getApplicationContext().getString(R.string.add_to_favorites), Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(DetailActivity.this, getApplicationContext().getString(R.string.remove_from_favorites), Toast.LENGTH_SHORT).show();
+                                }
+
                                 SetFavoriteIcon();
                             }
                         });
@@ -156,10 +162,8 @@ public class DetailActivity extends AppCompatActivity
     private void SetFavoriteIcon(){
         if(isFavorite){
             imageViewFavorite.setImageDrawable(getDrawable(R.drawable.baseline_favorite_black_48));
-            Toast.makeText(DetailActivity.this, getApplicationContext().getString(R.string.add_to_favorites), Toast.LENGTH_SHORT).show();
         } else {
             imageViewFavorite.setImageDrawable(getDrawable(R.drawable.baseline_favorite_border_black_48));
-            Toast.makeText(DetailActivity.this, getApplicationContext().getString(R.string.remove_from_favorites), Toast.LENGTH_SHORT).show();
         }
     }
 
