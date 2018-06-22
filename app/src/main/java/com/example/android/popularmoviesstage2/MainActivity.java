@@ -9,9 +9,11 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +21,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.popularmoviesstage2.data.MovieData;
+import com.example.android.popularmoviesstage2.database.FavoriteDatabase;
+import com.example.android.popularmoviesstage2.database.FavoriteEntry;
 import com.example.android.popularmoviesstage2.utilities.JSONUtils;
 import com.example.android.popularmoviesstage2.utilities.NetworkUtils;
 
@@ -28,7 +32,10 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements
         RecyclerViewAdapter.ItemClickListener,
-        LoaderManager.LoaderCallbacks<String>{
+        LoaderManager.LoaderCallbacks<String>,
+        FavoriteAdapter.ItemClickListener{
+
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private static final int W342_BITMAPWIDTH = 342;
 
@@ -37,9 +44,14 @@ public class MainActivity extends AppCompatActivity implements
     private static final String EXTRA_ORDER_BY = "order_by";
 
     private RecyclerView mRecyclerView;
-    private RecyclerViewAdapter mAdapter;
+    private RecyclerViewAdapter mJSonDataAdapter;
     private ProgressBar mLoadingIndicator;
     private TextView mErrorMessage;
+
+    private FavoriteDatabase mDatabase;
+    private FavoriteAdapter mDatabaseAdapter;
+
+    private String selectedMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,16 +70,16 @@ public class MainActivity extends AppCompatActivity implements
                 getString(R.string.settings_api_key_key),
                 "");
 
-        String orderBy  = sharedPrefs.getString(
+        selectedMode  = sharedPrefs.getString(
                 getString(R.string.settings_search_key),
                 getString(R.string.settings_search_most_popular_value)
         );
 
         // set the app title
         String title;
-        if(orderBy.equals(getString(R.string.settings_search_most_popular_value))){
+        if(selectedMode.equals(getString(R.string.settings_search_most_popular_value))){
             title = getString(R.string.app_title_popular);
-        } else if (orderBy.equals(getString(R.string.settings_search_highest_rated_value))){
+        } else if (selectedMode.equals(getString(R.string.settings_search_highest_rated_value))){
             title = getString(R.string.app_title_highest);
         } else {
             title = getString(R.string.app_title_favorites);
@@ -76,31 +88,78 @@ public class MainActivity extends AppCompatActivity implements
         setTitle(title);
 
         // set up the RecyclerView layout
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        if(selectedMode.equals(getString(R.string.settings_search_favorites_value))) {
+            // room database
+            mDatabase = FavoriteDatabase.getsInstance(getApplicationContext());
 
-        int displayWidth = metrics.widthPixels;
-        int columnCount = displayWidth / W342_BITMAPWIDTH;
-        mRecyclerView.setLayoutManager(new GridLayoutManager(this, columnCount));
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // initialize the loader
-        Bundle bundle = new Bundle();
-        bundle.putString(EXTRA_API_KEY, api_key);
-        bundle.putString(EXTRA_ORDER_BY, orderBy);
+            // Initialize the adapter and attach it to the RecyclerView
+            mDatabaseAdapter = new FavoriteAdapter(this, this);
+            mRecyclerView.setAdapter(mDatabaseAdapter);
 
-        LoaderManager loaderManager = getSupportLoaderManager();
-        Loader<Object> dataLoader = loaderManager.getLoader(MAIN_LOADER_ID);
+        } else {
+            
+            DisplayMetrics metrics = getResources().getDisplayMetrics();
 
-        if(dataLoader == null){
-            loaderManager.initLoader(MAIN_LOADER_ID, bundle, MainActivity.this);
-        } else{
-            loaderManager.restartLoader(MAIN_LOADER_ID, bundle, MainActivity.this);
+            int displayWidth = metrics.widthPixels;
+            int columnCount = displayWidth / W342_BITMAPWIDTH;
+            mRecyclerView.setLayoutManager(new GridLayoutManager(this, columnCount));
+
+            // initialize the loader
+            Bundle bundle = new Bundle();
+            bundle.putString(EXTRA_API_KEY, api_key);
+            bundle.putString(EXTRA_ORDER_BY, selectedMode);
+
+            LoaderManager loaderManager = getSupportLoaderManager();
+            Loader<Object> dataLoader = loaderManager.getLoader(MAIN_LOADER_ID);
+
+            if (dataLoader == null) {
+                loaderManager.initLoader(MAIN_LOADER_ID, bundle, MainActivity.this);
+            } else {
+                loaderManager.restartLoader(MAIN_LOADER_ID, bundle, MainActivity.this);
+            }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(selectedMode.equals(getString(R.string.settings_search_favorites_value))) {
+
+            mLoadingIndicator.setVisibility(View.VISIBLE);
+            mRecyclerView.setVisibility(View.INVISIBLE);
+
+            AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                @Override
+                public void run() {
+                    final List<FavoriteEntry> listFavoriteEntry = mDatabase.favoriteDao().loadAllFavorites();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mDatabaseAdapter.setFavorites(listFavoriteEntry);
+
+                            mLoadingIndicator.setVisibility(View.INVISIBLE);
+                            mRecyclerView.setVisibility(View.VISIBLE);
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    //TODO remove?
+    @Override
+    public void onItemClickListener(int itemId) {
+        long dbID = mDatabaseAdapter.getItemId(itemId);
+        FavoriteEntry entry = mDatabase.favoriteDao().getFavoriteByEntryId(dbID);
+        Log.d(LOG_TAG, "onItemClickListener: " + entry.getTitle());
     }
 
     // item click handling, details
     @Override
     public void onItemClick(View view, int position) {
-        MovieData clickedMovie = mAdapter.getItem(position);
+        MovieData clickedMovie = mJSonDataAdapter.getItem(position);
 
         launchDetailActivity(clickedMovie);
     }
@@ -156,9 +215,9 @@ public class MainActivity extends AppCompatActivity implements
         if(!TextUtils.isEmpty(data)){
             mRecyclerView.setVisibility(View.VISIBLE);
             List<MovieData> movieArray = JSONUtils.ParseOverview(data);
-            mAdapter = new RecyclerViewAdapter(MainActivity.this, movieArray);
-            mAdapter.setClickListener(MainActivity.this);
-            mRecyclerView.setAdapter(mAdapter);
+            mJSonDataAdapter = new RecyclerViewAdapter(MainActivity.this, movieArray);
+            mJSonDataAdapter.setClickListener(MainActivity.this);
+            mRecyclerView.setAdapter(mJSonDataAdapter);
         } else {
             mErrorMessage.setVisibility(View.VISIBLE);
         }

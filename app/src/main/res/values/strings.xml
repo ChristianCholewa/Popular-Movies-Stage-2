@@ -27,6 +27,9 @@
     <string name="settings_search_highest_rated_label">Highest rated</string>
     <string name="settings_search_highest_rated_value" translatable="false">top_rated</string>
 
+    <string name="settings_search_favorites_label">Favorites</string>
+    <string name="settings_search_favorites_value" translatable="false">favorites</string>
+
     <!-- recycler view error overlay -->
     <string name="error_message">Error fetching data from server.</string>
 

@@ -24,6 +24,8 @@ import android.widget.Toast;
 import com.example.android.popularmoviesstage2.data.MovieData;
 import com.example.android.popularmoviesstage2.data.MovieReview;
 import com.example.android.popularmoviesstage2.data.MovieTrailer;
+import com.example.android.popularmoviesstage2.database.FavoriteDatabase;
+import com.example.android.popularmoviesstage2.database.FavoriteEntry;
 import com.example.android.popularmoviesstage2.utilities.JSONUtils;
 import com.example.android.popularmoviesstage2.utilities.NetworkUtils;
 import com.squareup.picasso.Picasso;
@@ -49,7 +51,11 @@ public class DetailActivity extends AppCompatActivity
     private static final String EXTRA_MOVIE_ID = "extra_movie_id";
     private static final String EXTRA_API_KEY = "api_key";
 
+    private static MovieData movieData;
+
     private static boolean isFavorite;
+    private FavoriteDatabase mDatabase;
+    private FavoriteEntry entry;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,14 +75,13 @@ public class DetailActivity extends AppCompatActivity
             closeOnError();
         }
 
-        MovieData data = intent.getParcelableExtra(MovieData.EXTRA_NAME_MOVIEDATA);
+        movieData = intent.getParcelableExtra(MovieData.EXTRA_NAME_MOVIEDATA);
 
-        int movieId = data.getId();
+        final int movieId = movieData.getId();
 
-        InitializeDetailsSection(data);
+        InitializeDetailsSection(movieData);
 
-        final Context context = getApplicationContext();
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         String api_key = sharedPrefs.getString(
                 getString(R.string.settings_api_key_key),
@@ -102,24 +107,61 @@ public class DetailActivity extends AppCompatActivity
             loaderManager.restartLoader(REVIEW_LOADER_ID, bundle, DetailActivity.this);
         }
 
-        // TODO database
+        mDatabase = FavoriteDatabase.getsInstance(getApplicationContext());
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                entry = mDatabase.favoriteDao().getFavoriteByMovieId(movieData.getId());
+                isFavorite = entry != null;
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        SetFavoriteIcon();
+                    }
+                });
+            }
+        });
+
         isFavorite = false;
 
         imageViewFavorite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO database
                 isFavorite = !isFavorite;
 
-                if(isFavorite){
-                    imageViewFavorite.setImageDrawable(getDrawable(R.drawable.baseline_favorite_black_48));
-                    Toast.makeText(DetailActivity.this, context.getString(R.string.add_to_favorites), Toast.LENGTH_SHORT).show();
-                } else {
-                    imageViewFavorite.setImageDrawable(getDrawable(R.drawable.baseline_favorite_border_black_48));
-                    Toast.makeText(DetailActivity.this, context.getString(R.string.remove_from_favorites), Toast.LENGTH_SHORT).show();
-                }
+                AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        if(isFavorite){
+                            FavoriteEntry newEntry = new FavoriteEntry(movieData.getId(), movieData.getTitle(), movieData.getPoster_path());
+                            mDatabase.favoriteDao().insertFavorite(newEntry);
+                        } else {
+                            mDatabase.favoriteDao().deleteFavorite(entry);
+                        }
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                SetFavoriteIcon();
+                            }
+                        });
+                    }
+                });
+
             }
         });
+    }
+
+    private void SetFavoriteIcon(){
+        if(isFavorite){
+            imageViewFavorite.setImageDrawable(getDrawable(R.drawable.baseline_favorite_black_48));
+            Toast.makeText(DetailActivity.this, getApplicationContext().getString(R.string.add_to_favorites), Toast.LENGTH_SHORT).show();
+        } else {
+            imageViewFavorite.setImageDrawable(getDrawable(R.drawable.baseline_favorite_border_black_48));
+            Toast.makeText(DetailActivity.this, getApplicationContext().getString(R.string.remove_from_favorites), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @NonNull
