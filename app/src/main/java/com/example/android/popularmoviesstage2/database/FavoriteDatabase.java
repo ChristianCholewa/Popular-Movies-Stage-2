@@ -14,7 +14,7 @@ public abstract class FavoriteDatabase extends RoomDatabase {
     private static final String DATABASE_NAME = "favoritesDb";
     private static FavoriteDatabase sInstance;
 
-    public static FavoriteDatabase getsInstance(Context context) {
+    public static FavoriteDatabase getInstance(Context context) {
         if(sInstance == null){
             synchronized (LOCK){
                 Log.d(LOG_TAG, "Creating new database instance");

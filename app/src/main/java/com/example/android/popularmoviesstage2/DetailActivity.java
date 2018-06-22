@@ -106,7 +106,7 @@ public class DetailActivity extends AppCompatActivity
             loaderManager.restartLoader(REVIEW_LOADER_ID, bundle, DetailActivity.this);
         }
 
-        mDatabase = FavoriteDatabase.getsInstance(getApplicationContext());
+        mDatabase = FavoriteDatabase.getInstance(getApplicationContext());
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {

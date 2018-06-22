@@ -2,6 +2,7 @@ package com.example.android.popularmoviesstage2;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -92,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements
         // set up the RecyclerView layout
         if(selectedMode.equals(getString(R.string.settings_search_favorites_value))) {
             // room database
-            mDatabase = FavoriteDatabase.getsInstance(getApplicationContext());
+            mDatabase = FavoriteDatabase.getInstance(getApplicationContext());
 
             mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -103,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements
             mLoadingIndicator.setVisibility(View.VISIBLE);
             mRecyclerView.setVisibility(View.INVISIBLE);
 
-            readFavoritesFromDatabase();
+            setupViewModel();
 
             new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
                 @Override
@@ -130,8 +132,6 @@ public class MainActivity extends AppCompatActivity implements
                             FavoriteEntry favoriteEntry = mDatabaseAdapter.getFavorites().get(pos);
 
                             mDatabase.favoriteDao().deleteFavorite(favoriteEntry);
-
-                            readFavoritesFromDatabase();
                         }
                     });
                 }
@@ -161,20 +161,21 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    private void readFavoritesFromDatabase(){
+    private void setupViewModel(){
 
-        final LiveData<List<FavoriteEntry>> listFavoriteEntry = mDatabase.favoriteDao().loadAllFavorites();
-
-        mLoadingIndicator.setVisibility(View.INVISIBLE);
-        mRecyclerView.setVisibility(View.VISIBLE);
-
-        listFavoriteEntry.observe(this, new Observer<List<FavoriteEntry>>() {
+        MainViewModel mainViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        mainViewModel.getTasks().observe(this, new Observer<List<FavoriteEntry>>() {
             @Override
             public void onChanged(@Nullable List<FavoriteEntry> favoriteEntries) {
                 mDatabaseAdapter.setFavorites(favoriteEntries);
 
-                mLoadingIndicator.setVisibility(View.INVISIBLE);
-                mRecyclerView.setVisibility(View.VISIBLE);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mLoadingIndicator.setVisibility(View.INVISIBLE);
+                        mRecyclerView.setVisibility(View.VISIBLE);
+                    }
+                });
             }
         });
     }
