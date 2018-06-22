@@ -13,7 +13,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -97,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements
             // Initialize the adapter and attach it to the RecyclerView
             mDatabaseAdapter = new FavoriteAdapter(this, this);
             mRecyclerView.setAdapter(mDatabaseAdapter);
-
+            
         } else {
             
             DisplayMetrics metrics = getResources().getDisplayMetrics();
@@ -151,9 +150,9 @@ public class MainActivity extends AppCompatActivity implements
     //TODO remove?
     @Override
     public void onItemClickListener(int itemId) {
-        long dbID = mDatabaseAdapter.getItemId(itemId);
-        FavoriteEntry entry = mDatabase.favoriteDao().getFavoriteByEntryId(dbID);
-        Log.d(LOG_TAG, "onItemClickListener: " + entry.getTitle());
+//        long dbID = mDatabaseAdapter.getItemId(itemId);
+//        FavoriteEntry entry = mDatabase.favoriteDao().getFavoriteByEntryId(dbID);
+//        Log.d(LOG_TAG, "onItemClickListener: " + entry.getTitle());
     }
 
     // item click handling, details

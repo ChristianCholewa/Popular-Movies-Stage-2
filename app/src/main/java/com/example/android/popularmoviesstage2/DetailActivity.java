@@ -1,7 +1,6 @@
 package com.example.android.popularmoviesstage2;
 
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -333,7 +332,7 @@ public class DetailActivity extends AppCompatActivity
 
     private void PlayTrailer(MovieTrailer trailer){
         String key = trailer.getKey();
-//TODO site
+//TODO ? site
         Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + key));
         Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + key));
 
