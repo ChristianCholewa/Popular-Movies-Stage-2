@@ -20,6 +20,9 @@ public interface FavoriteDao {
     @Query("SELECT * FROM favorites where id = :movieId")
     FavoriteEntry getFavoriteByMovieId(int movieId);
 
+    @Query("DELETE FROM favorites where id = :movieId")
+    void removeFavorite(int movieId);
+
     @Insert
     void insertFavorite(FavoriteEntry favoriteEntry);
 

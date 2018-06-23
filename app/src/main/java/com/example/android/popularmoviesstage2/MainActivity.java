@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements
     private RecyclerViewAdapter mJSonDataAdapter;
     private ProgressBar mLoadingIndicator;
     private TextView mErrorMessage;
+    private TextView mNoFavorites;
 
     private FavoriteDatabase mDatabase;
     private FavoriteAdapter mDatabaseAdapter;
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements
         mLoadingIndicator = findViewById(R.id.pb_loading_indicator);
         mRecyclerView = findViewById(R.id.rv_posters);
         mErrorMessage = findViewById(R.id.tv_error_message_display);
+        mNoFavorites = findViewById(R.id.tv_no_favorites);
 
         // get preferences
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
@@ -168,12 +170,15 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onChanged(@Nullable List<FavoriteEntry> favoriteEntries) {
                 mDatabaseAdapter.setFavorites(favoriteEntries);
+                final int favoriteCount = favoriteEntries.size();
 
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         mLoadingIndicator.setVisibility(View.INVISIBLE);
-                        mRecyclerView.setVisibility(View.VISIBLE);
+
+                        mRecyclerView.setVisibility(favoriteCount > 0 ? View.VISIBLE : View.INVISIBLE);
+                        mNoFavorites.setVisibility(favoriteCount > 0 ? View.INVISIBLE : View.VISIBLE);
                     }
                 });
             }
@@ -273,3 +278,5 @@ public class MainActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
 }
+
+// todo keine favoriten meldung

@@ -32,6 +32,7 @@
 
     <!-- recycler view error overlay -->
     <string name="error_message">Error fetching data from server.\nHave you entered your api key in the settings?</string>
+    <string name="no_favorites">There are no movies marked as favorites</string>
 
     <!-- details view -->
     <string name="detail_error_message">Movie details not available</string>

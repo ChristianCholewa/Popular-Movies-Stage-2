@@ -137,7 +137,9 @@ public class DetailActivity extends AppCompatActivity
                             entry = new FavoriteEntry(movieData.getId(), movieData.getTitle(), movieData.getPoster_path());
                             mDatabase.favoriteDao().insertFavorite(entry);
                         } else {
-                            mDatabase.favoriteDao().deleteFavorite(entry);
+                            //mDatabase.favoriteDao().deleteFavorite(entry);
+                            mDatabase.favoriteDao().removeFavorite(entry.getId());
+                            entry = null;
                         }
 
                         runOnUiThread(new Runnable() {
