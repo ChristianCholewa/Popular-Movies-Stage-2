@@ -95,14 +95,20 @@
             style="@style/detail_overview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:paddingLeft="8dp"
             android:text="@string/trailer_label"
-            tools:text="tv_trailer_label" />
+            android:background="@color/colorTrailerBackground"
+            android:textSize="24sp"/>
 
         <LinearLayout
             android:id="@+id/list_trailers"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
             android:orientation="vertical" >
 
             <ProgressBar
@@ -119,14 +125,20 @@
             style="@style/detail_overview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:paddingLeft="8dp"
             android:text="@string/review_label"
+            android:background="@color/colorReviewBackground"
             android:textSize="24sp"/>
 
         <LinearLayout
             android:id="@+id/list_reviews"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
             android:orientation="vertical" >
 
             <ProgressBar

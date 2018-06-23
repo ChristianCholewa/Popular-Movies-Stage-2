@@ -3,4 +3,7 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="colorTrailerBackground">#304ffe</color>
+    <color name="colorReviewBackground">#448aff</color>
 </resources>

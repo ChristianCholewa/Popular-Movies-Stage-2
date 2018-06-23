@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements
     private void setupViewModel(){
 
         MainViewModel mainViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
-        mainViewModel.getTasks().observe(this, new Observer<List<FavoriteEntry>>() {
+        mainViewModel.getFavorites().observe(this, new Observer<List<FavoriteEntry>>() {
             @Override
             public void onChanged(@Nullable List<FavoriteEntry> favoriteEntries) {
                 mDatabaseAdapter.setFavorites(favoriteEntries);

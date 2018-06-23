@@ -4,21 +4,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginTop="1dp"
+    android:layout_marginLeft="8dp"
+    android:background="@color/colorReviewBackground">
 
     <TextView
         android:id="@+id/tv_author"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:paddingTop="8dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         android:textStyle="bold"
-        tools:text="tv_author"/>
+        tools:text="Author name"/>
 
     <TextView
         android:id="@+id/tv_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        tools:text="tv_review"/>
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="8dp"
+        tools:text="Review text"/>
 
 </LinearLayout>

@@ -137,8 +137,7 @@ public class DetailActivity extends AppCompatActivity
                             entry = new FavoriteEntry(movieData.getId(), movieData.getTitle(), movieData.getPoster_path());
                             mDatabase.favoriteDao().insertFavorite(entry);
                         } else {
-                            //mDatabase.favoriteDao().deleteFavorite(entry);
-                            mDatabase.favoriteDao().removeFavorite(entry.getId());
+                            mDatabase.favoriteDao().deleteFavorite(entry);
                             entry = null;
                         }
 
@@ -264,37 +263,44 @@ public class DetailActivity extends AppCompatActivity
 
             List<MovieTrailer> movieTrailers = JSONUtils.ParseTrailers(jsonString);
 
+            int displayTrailers = 0;
             if(movieTrailers.size() > 0) {
                 for (int i = 0; i < movieTrailers.size(); i++) {
-                    View view = layoutInflater.inflate(R.layout.trailer_item, linearLayoutTrailers, false);
 
-                    //TODO site
-                    TextView textViewName = view.findViewById(R.id.tv_trailer_name);
-                    textViewName.setText(movieTrailers.get(i).getName());
-                    TextView textViewType = view.findViewById(R.id.tv_trailer_type);
-                    textViewType.setText(movieTrailers.get(i).getType());
-                    TextView textViewSite = view.findViewById(R.id.tv_trailer_site);
-                    textViewSite.setText(movieTrailers.get(i).getSite());
+                    String site = movieTrailers.get(i).getSite();
+                    String type = movieTrailers.get(i).getType();
 
-                    view.setTag(movieTrailers.get(i));
-                    view.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            MovieTrailer trailer = (MovieTrailer)v.getTag();
-                            PlayTrailer(trailer);
-                        }
-                    });
+                    if(site.equalsIgnoreCase("youtube") && type.equalsIgnoreCase("trailer")) {
+                        View view = layoutInflater.inflate(R.layout.trailer_item, linearLayoutTrailers, false);
 
-                    linearLayoutTrailers.addView(view);
+                        TextView textViewName = view.findViewById(R.id.tv_trailer_name);
+                        textViewName.setText(movieTrailers.get(i).getName());
+                        TextView textViewType = view.findViewById(R.id.tv_trailer_type);
+                        String hostInfo = movieTrailers.get(i).getType() + " (" + movieTrailers.get(i).getSite() + ")";
+                        textViewType.setText(hostInfo);
+
+                        view.setTag(movieTrailers.get(i));
+                        view.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                MovieTrailer trailer = (MovieTrailer) v.getTag();
+                                PlayTrailer(trailer);
+                            }
+                        });
+
+                        linearLayoutTrailers.addView(view);
+                        displayTrailers++;
+                    }
                 }
-            } else {
+            }
+            if(displayTrailers == 0){
                 View view = layoutInflater.inflate(R.layout.trailer_no_data, linearLayoutReviews, false);
-                linearLayoutReviews.addView(view);
+                linearLayoutTrailers.addView(view);
             }
         }
         else {
             View view = layoutInflater.inflate(R.layout.trailer_load_error, linearLayoutReviews, false);
-            linearLayoutReviews.addView(view);
+            linearLayoutTrailers.addView(view);
         }
     }
 
@@ -338,7 +344,7 @@ public class DetailActivity extends AppCompatActivity
 
     private void PlayTrailer(MovieTrailer trailer){
         String key = trailer.getKey();
-//TODO ? site
+
         Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + key));
         Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + key));
 
