@@ -2,16 +2,12 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="1dp"
-    android:layout_marginLeft="8dp"
+    style="@style/detail_item_layout"
     android:background="@color/colorReviewBackground">
 
     <TextView
         android:id="@+id/tv_author"
-        style="@style/detail_item_titel"
+        style="@style/detail_item_title"
         tools:text="Author name"/>
 
     <TextView

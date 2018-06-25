@@ -48,11 +48,11 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.Favori
     public void onBindViewHolder(FavoriteViewHolder holder, int position) {
         // Determine the values of the wanted data
         FavoriteEntry taskEntry = favoriteEntries.get(position);
-        String titel = taskEntry.getTitle();
+        String title = taskEntry.getTitle();
         String poster_path = taskEntry.getPoster_path();
 
         //Set values
-        holder.tvTitel.setText(titel);
+        holder.tvTitle.setText(title);
         URL posterUrl = NetworkUtils.buildPosterUrlString(poster_path);
         Picasso.with(context).load(posterUrl.toString()).into(holder.ivImage);
     }
@@ -88,8 +88,8 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.Favori
     // Inner class for creating ViewHolders
     class FavoriteViewHolder extends RecyclerView.ViewHolder {
 
-        // Class variables for the picture and the titel
-        TextView tvTitel;
+        // Class variables for the picture and the title
+        TextView tvTitle;
         ImageView ivImage;
 
         /**
@@ -100,7 +100,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.Favori
         public FavoriteViewHolder(View itemView) {
             super(itemView);
 
-            tvTitel = itemView.findViewById(R.id.tv_favorite_title);
+            tvTitle = itemView.findViewById(R.id.tv_favorite_title);
             ivImage = itemView.findViewById(R.id.iv_favorite_poster);
         }
     }
