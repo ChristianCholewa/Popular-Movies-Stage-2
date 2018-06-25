@@ -4,4 +4,8 @@
     <dimen name="pb_padding">4dp</dimen>
     <dimen name="detail_margin">8dp</dimen>
     <dimen name="detail_padding">8dp</dimen>
+
+    <dimen name="progressbar_size">42dp</dimen>
+    <dimen name="titel_size">24sp</dimen>
+
 </resources>

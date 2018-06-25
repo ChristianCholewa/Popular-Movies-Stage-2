@@ -85,36 +85,22 @@
         <TextView
             android:id="@+id/tv_overview"
             style="@style/detail_overview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
             tools:text="Overview" />
 
         <TextView
             android:id="@+id/tv_trailer_label"
-            style="@style/detail_overview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:paddingLeft="8dp"
+            style="@style/detail_labels"
             android:text="@string/trailer_label"
-            android:background="@color/colorTrailerBackground"
-            android:textSize="24sp"/>
+            android:background="@color/colorTrailerBackground" />
 
         <LinearLayout
             android:id="@+id/list_trailers"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="8dp"
-            android:orientation="vertical" >
+            style="@style/detail_dynamic_linear_layouts" >
 
             <ProgressBar
                 android:id="@+id/pb_loading_indicator_trailers"
-                android:layout_height="42dp"
-                android:layout_width="42dp"
+                android:layout_height="@dimen/progressbar_size"
+                android:layout_width="@dimen/progressbar_size"
                 android:layout_gravity="center"
                 android:visibility="invisible" />
 
@@ -122,29 +108,18 @@
 
         <TextView
             android:id="@+id/tv_review_label"
-            style="@style/detail_overview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:paddingLeft="8dp"
+            style="@style/detail_labels"
             android:text="@string/review_label"
-            android:background="@color/colorReviewBackground"
-            android:textSize="24sp"/>
+            android:background="@color/colorReviewBackground" />
 
         <LinearLayout
             android:id="@+id/list_reviews"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="8dp"
-            android:orientation="vertical" >
+            style="@style/detail_dynamic_linear_layouts" >
 
             <ProgressBar
                 android:id="@+id/pb_loading_indicator_reviews"
-                android:layout_height="42dp"
-                android:layout_width="42dp"
+                android:layout_height="@dimen/progressbar_size"
+                android:layout_width="@dimen/progressbar_size"
                 android:layout_gravity="center"
                 android:visibility="invisible" />
 

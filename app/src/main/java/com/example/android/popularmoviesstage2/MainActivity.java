@@ -1,6 +1,5 @@
 package com.example.android.popularmoviesstage2;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
@@ -18,7 +17,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -95,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements
 
         // set up the RecyclerView layout
         if(selectedMode.equals(getString(R.string.settings_search_favorites_value))) {
+            // 1) layout for favorites
             // room database
             mDatabase = FavoriteDatabase.getInstance(getApplicationContext());
 
@@ -140,7 +139,8 @@ public class MainActivity extends AppCompatActivity implements
             }).attachToRecyclerView(mRecyclerView);
             
         } else {
-            
+            // 2) layout for moviedb results
+
             DisplayMetrics metrics = getResources().getDisplayMetrics();
 
             int displayWidth = metrics.widthPixels;
@@ -163,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    // viewmodel for favorites
     private void setupViewModel(){
 
         MainViewModel mainViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
@@ -199,6 +200,7 @@ public class MainActivity extends AppCompatActivity implements
         startActivity(intent);
     }
 
+    // loader for moviedb access
     @Override
     public Loader<String> onCreateLoader(int id, final Bundle args) {
         return new AsyncTaskLoader<String>(this) {

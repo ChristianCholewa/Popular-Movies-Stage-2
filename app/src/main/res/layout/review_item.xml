@@ -11,21 +11,12 @@
 
     <TextView
         android:id="@+id/tv_author"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="8dp"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:textStyle="bold"
+        style="@style/detail_item_titel"
         tools:text="Author name"/>
 
     <TextView
         android:id="@+id/tv_content"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:paddingBottom="8dp"
+        style="@style/detail_item"
         tools:text="Review text"/>
 
 </LinearLayout>

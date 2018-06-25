@@ -8,16 +8,12 @@
 
     <ImageView
         android:id="@+id/iv_favorite_poster"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"/>
+        style="@style/favorite_item"/>
 
     <TextView
         android:id="@+id/tv_favorite_title"
-        style="@style/detail_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:textSize="@dimen/titel_size"
+        style="@style/favorite_item"
         tools:text="Title" />
 
 </LinearLayout>

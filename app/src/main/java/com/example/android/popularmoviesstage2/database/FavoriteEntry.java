@@ -1,12 +1,12 @@
 package com.example.android.popularmoviesstage2.database;
 
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
 @Entity(tableName = "favorites")
 public class FavoriteEntry {
 
+    // the movie id is used as primary key
     @PrimaryKey(autoGenerate = false)
     private int id;
     private String title;
