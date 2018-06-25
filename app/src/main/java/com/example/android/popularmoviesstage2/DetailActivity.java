@@ -47,9 +47,6 @@ public class DetailActivity extends AppCompatActivity
     private static final int TRAILER_LOADER_ID = 2;
     private static final int REVIEW_LOADER_ID = 3;
 
-    private static final String EXTRA_MOVIE_ID = "extra_movie_id";
-    private static final String EXTRA_API_KEY = "api_key";
-
     private static MovieData movieData;
 
     private static boolean isFavorite;
@@ -87,8 +84,8 @@ public class DetailActivity extends AppCompatActivity
                 "");
 
         Bundle bundle = new Bundle();
-        bundle.putString(EXTRA_API_KEY, api_key);
-        bundle.putInt(EXTRA_MOVIE_ID, movieId);
+        bundle.putString(getString(R.string.EXTRA_API_KEY), api_key);
+        bundle.putInt(getString(R.string.EXTRA_MOVIE_ID), movieId);
 
         LoaderManager loaderManager = getSupportLoaderManager();
 
@@ -193,8 +190,8 @@ public class DetailActivity extends AppCompatActivity
             @Override
             public String loadInBackground() {
 
-                int movieId = args.getInt(EXTRA_MOVIE_ID);
-                String api_key = args.getString(EXTRA_API_KEY);
+                int movieId = args.getInt(getString(R.string.EXTRA_MOVIE_ID));
+                String api_key = args.getString(getString(R.string.EXTRA_API_KEY));
 
                 URL url;
                 if(id == TRAILER_LOADER_ID) {

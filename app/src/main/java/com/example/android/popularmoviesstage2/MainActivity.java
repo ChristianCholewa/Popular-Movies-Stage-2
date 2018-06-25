@@ -37,13 +37,9 @@ public class MainActivity extends AppCompatActivity implements
         RecyclerViewAdapter.ItemClickListener,
         LoaderManager.LoaderCallbacks<String>{
 
-    private static final String LOG_TAG = MainActivity.class.getSimpleName();
-
     private static final int W342_BITMAPWIDTH = 342;
 
     private static final int MAIN_LOADER_ID = 1;
-    private static final String EXTRA_API_KEY = "api_key";
-    private static final String EXTRA_ORDER_BY = "order_by";
 
     private RecyclerView mRecyclerView;
     private RecyclerViewAdapter mJSonDataAdapter;
@@ -53,8 +49,6 @@ public class MainActivity extends AppCompatActivity implements
 
     private FavoriteDatabase mDatabase;
     private FavoriteAdapter mDatabaseAdapter;
-
-    private String selectedMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements
                 getString(R.string.settings_api_key_key),
                 "");
 
-        selectedMode  = sharedPrefs.getString(
+        String selectedMode  = sharedPrefs.getString(
                 getString(R.string.settings_search_key),
                 getString(R.string.settings_search_most_popular_value)
         );
@@ -149,8 +143,8 @@ public class MainActivity extends AppCompatActivity implements
 
             // initialize the loader
             Bundle bundle = new Bundle();
-            bundle.putString(EXTRA_API_KEY, api_key);
-            bundle.putString(EXTRA_ORDER_BY, selectedMode);
+            bundle.putString(getString(R.string.BUNDLE_API_KEY), api_key);
+            bundle.putString(getString(R.string.BUNDLE_ORDER_BY), selectedMode);
 
             LoaderManager loaderManager = getSupportLoaderManager();
             Loader<Object> dataLoader = loaderManager.getLoader(MAIN_LOADER_ID);
@@ -221,8 +215,8 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public String loadInBackground() {
 
-                String api_key = args.getString(EXTRA_API_KEY);
-                String orderBy  = args.getString(EXTRA_ORDER_BY);
+                String api_key = args.getString(getString(R.string.BUNDLE_API_KEY));
+                String orderBy  = args.getString(getString(R.string.BUNDLE_ORDER_BY));
 
                 URL url = NetworkUtils.buildUrl(api_key, orderBy);
                 String jsonString = "";

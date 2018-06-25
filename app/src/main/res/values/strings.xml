@@ -9,7 +9,7 @@
 
     <!-- settings -->
     <string name="settings_menu_item">Settings</string>
-    <string name="settings_title">Popular Movies App Settings</string>
+    <string name="settings_title">Settings</string>
 
     <!-- section, free text string -->
     <string name="settings_api_key_label">The Movie Database Api key</string>
@@ -51,5 +51,13 @@
     <string name="trailer_label">Trailers</string>
     <string name="no_trailers">No trailers available</string>
     <string name="error_message_trailers">Error fetching data from server.</string>
+
+    <!-- ids of bundle items for loader in main activity -->
+    <string name="BUNDLE_API_KEY">api_key</string>
+    <string name="BUNDLE_ORDER_BY">order_by</string>
+
+    <!-- ids of extras in detail activity call  -->
+    <string name="EXTRA_MOVIE_ID">extra_movie_id</string>
+    <string name="EXTRA_API_KEY">api_key</string>
 
 </resources>
